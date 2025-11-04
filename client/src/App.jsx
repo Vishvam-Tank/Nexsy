@@ -15,6 +15,8 @@ export default function App() {
         <Route path="/login" element={isLoggedIn() ? <Navigate to="/chat" /> : <Login />} />
         <Route path="/register" element={isLoggedIn() ? <Navigate to="/chat" /> : <Register />} />
         <Route path="/chat" element={isLoggedIn() ? <Chat /> : <Navigate to="/login" />} />
+        {/* Add catch-all route for SPA */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

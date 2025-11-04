@@ -3,10 +3,9 @@ import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
+import { API_URL, SOCKET_URL } from "../config";
 import "./chat.css";
 
-const SOCKET_URL = "http://localhost:5000";
-const API_URL = "http://localhost:5000/api";
 const socket = io(SOCKET_URL, { autoConnect: false });
 
 // NEW: Notification sound with better handling

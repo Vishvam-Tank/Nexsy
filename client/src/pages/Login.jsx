@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "./login.css";
+import { API_URL } from "../config";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -13,7 +14,7 @@ export default function Login() {
     setMessage("");
 
     try {
-      const res = await axios.post("http://localhost:5000/api/login", {
+      const res = await axios.post(`${API_URL}/login`, {
         username,
         password,
       });

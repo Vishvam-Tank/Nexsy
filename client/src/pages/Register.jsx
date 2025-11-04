@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "./login.css";
+import { API_URL } from "../config";
+
 
 export default function Register() {
   const [username, setUsername] = useState("");
@@ -14,7 +16,7 @@ export default function Register() {
     setMessage("");
 
     try {
-      const res = await axios.post("http://localhost:5000/api/register", {
+      const res = await axios.post(`${API_URL}/login`, {
         username,
         email,
         password,
