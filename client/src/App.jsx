@@ -5,12 +5,19 @@ import Chat from "./pages/Chat";
 
 // Check if user is authenticated
 const isAuthenticated = () => {
-  const token = localStorage.getItem("token");
-  const username = localStorage.getItem("username");
-  return !!(token && username);
+  try {
+    const token = localStorage.getItem("token");
+    const username = localStorage.getItem("username");
+    return !!(token && username);
+  } catch (error) {
+    console.error('Auth check error:', error);
+    return false;
+  }
 };
 
 function App() {
+  console.log('🚀 Nexsy App loaded successfully!');
+  
   return (
     <Router>
       <Routes>

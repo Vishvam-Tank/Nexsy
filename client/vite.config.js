@@ -4,9 +4,20 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 3000
+    port: 3000,
+    host: true
   },
   build: {
-    outDir: 'dist'
-  }
+    outDir: 'dist',
+    sourcemap: false,
+    emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        entryFileNames: `assets/[name].js`,
+        chunkFileNames: `assets/[name].js`,
+        assetFileNames: `assets/[name].[ext]`
+      }
+    }
+  },
+  base: './' // Add this line - important for Vercel
 })
