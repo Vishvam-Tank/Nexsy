@@ -1,0 +1,156 @@
+/* ===== CHAT PAGE ===== */
+.chat-layout {
+  display: flex;
+  height: 100vh;
+  font-family: "Poppins", sans-serif;
+  background-color: #f9f7f3;
+}
+
+/* Sidebar */
+.chat-sidebar {
+  width: 270px;
+  background-color: #00473e;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px;
+}
+
+.profile img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid #c1a57b;
+  margin-bottom: 12px;
+}
+
+.pname {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.chat-sidebar h3 {
+  color: #c1a57b;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.chat-sidebar ul {
+  list-style: none;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.chat-sidebar ul li {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 14px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  color: #fff;
+  font-size: 14px;
+}
+
+.logout {
+  margin-top: auto;
+  background: #c1a57b;
+  color: #00473e;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 24px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.logout:hover {
+  background: #b19468;
+}
+
+/* Main chat */
+.chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #f9f7f3;
+}
+
+.messages {
+  flex: 1;
+  padding: 20px 30px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.bubble {
+  margin: 8px 0;
+  padding: 10px 16px;
+  border-radius: 18px;
+  max-width: 70%;
+  font-size: 15px;
+  line-height: 1.4;
+  position: relative;
+}
+
+.bubble-sent {
+  background-color: #00473e;
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 6px;
+}
+
+.bubble-recv {
+  background-color: #fff;
+  color: #222;
+  border: 1px solid #ddd;
+  align-self: flex-start;
+  border-bottom-left-radius: 6px;
+}
+
+.bubble-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+.composer {
+  display: flex;
+  padding: 14px 20px;
+  background-color: #fff;
+  border-top: 1px solid #eee;
+}
+
+.composer input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 15px;
+}
+
+.composer button {
+  background-color: #00473e;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0 20px;
+  margin-left: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: 0.3s;
+}
+
+.composer button:hover {
+  background-color: #023f37;
+}

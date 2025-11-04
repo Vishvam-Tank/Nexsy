@@ -1,0 +1,19 @@
+.sent-bubble {
+  align-self: flex-end;
+  background: #25d366;
+  color: black;
+  padding: 10px 14px;
+  margin: 8px 0;
+  border-radius: 12px;
+  border-top-right-radius: 0;
+  max-width: 70%;
+  text-align: right;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.sent-time {
+  font-size: 11px;
+  color: #333;
+  margin-top: 4px;
+  text-align: right;
+}

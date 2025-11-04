@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Socket.IO Test</title>
+</head>
+<body>
+  <h2>Socket Test</h2>
+  <label>User ID: <input id="userId" value="" /></label>
+  <button id="connectBtn">Connect (emit join)</button>
+
+  <h3>Send message</h3>
+  <label>Recipient ID: <input id="recipientId" /></label><br/>
+  <label>Conversation ID: <input id="convId" style="width: 600px"/></label><br/>
+  <input id="msgText" placeholder="message" style="width:500px"/>
+  <button id="sendBtn">Send (socket)</button>
+
+  <h3>Logs</h3>
+  <pre id="log" style="height:300px; overflow:auto; border:1px solid #ccc"></pre>
+
+  <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+  <script>
+    const logArea = document.getElementById('log');
+    const append = (t) => { logArea.textContent += t + "\n"; logArea.scrollTop = logArea.scrollHeight; };
+
+    // change URL if your server runs on a different port
+    const SOCKET_URL = "http://localhost:5000";
+    let socket;
+
+    document.getElementById('connectBtn').onclick = () => {
+      const userId = document.getElementById('userId').value.trim();
+      if (!userId) return alert('Enter userId');
+      socket = io(SOCKET_URL);
+      socket.on('connect', () => {
+        append('Connected: ' + socket.id);
+        socket.emit('join', userId);
+        append('Emitted join for userId: ' + userId);
+      });
+      socket.on('receiveMessage', (payload) => {
+        append('[receiveMessage] ' + JSON.stringify(payload));
+      });
+      socket.on('messageSent', (payload) => {
+        append('[messageSent ack] ' + JSON.stringify(payload));
+      });
+      socket.on('onlineUsers', (list) => {
+        append('[onlineUsers] ' + JSON.stringify(list));
+      });
+    };
+
+    document.getElementById('sendBtn').onclick = () => {
+      if (!socket || !socket.connected) return alert('Not connected');
+      const recipientId = document.getElementById('recipientId').value.trim();
+      const convId = document.getElementById('convId').value.trim();
+      const text = document.getElementById('msgText').value.trim();
+      if (!recipientId || !convId || !text) return alert('Fill recipient, convId, text');
+      const payload = {
+        conversationId: convId,
+        sender: document.getElementById('userId').value.trim(),
+        text,
+        recipientId
+      };
+      socket.emit('sendMessage', payload);
+      append('[sent via socket] ' + JSON.stringify(payload));
+    };
+  </script>
+</body>
+</html>
+
