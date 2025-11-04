@@ -13,13 +13,14 @@ dotenv.config();
 
 const app = express();
 
-// CORS configuration for production
+// CORS configuration for production - UPDATED WITH YOUR RENDER URL
 app.use(cors({
   origin: [
     "http://localhost:5173", 
     "http://127.0.0.1:5173", 
     "http://localhost:3000",
-    "https://nexsy-chat.vercel.app",
+    "https://nexsy-1.onrender.com", // Your Render backend URL
+    "https://nexsy-chat.vercel.app", // Your future Vercel frontend
     "https://*.vercel.app"
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
@@ -82,7 +83,8 @@ app.get("/api/health", (req, res) => {
     status: "OK", 
     service: "Nexsy Chat Backend",
     database: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    url: "https://nexsy-1.onrender.com"
   });
 });
 
@@ -237,7 +239,8 @@ const io = new Server(server, {
       "http://localhost:5173",
       "http://127.0.0.1:5173",
       "http://localhost:3000",
-      "https://nexsy-chat.vercel.app",
+      "https://nexsy-1.onrender.com", // Your Render backend
+      "https://nexsy-chat.vercel.app", // Your Vercel frontend
       "https://*.vercel.app"
     ],
     methods: ["GET", "POST"],
@@ -421,6 +424,7 @@ const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
   console.log(`🚀 Nexsy Backend running on port ${PORT}`);
-  console.log(`📍 Health: http://localhost:${PORT}/api/health`);
+  console.log(`📍 Health: https://nexsy-1.onrender.com/api/health`);
   console.log(`🌐 Environment: ${process.env.NODE_ENV}`);
+  console.log(`🔗 Backend URL: https://nexsy-1.onrender.com`);
 });
