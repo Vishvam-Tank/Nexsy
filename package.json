@@ -1,5 +1,17 @@
 {
-  "dependencies": {
-    "axios": "^1.13.1"
+  "name": "nexsy-chat-app",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:client\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "cd client && npm run build",
+    "install:all": "npm run install:client && npm run install:backend",
+    "install:client": "cd client && npm install",
+    "install:backend": "cd backend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
   }
 }

@@ -6,11 +6,14 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
+    host: true
   },
   build: {
     outDir: 'dist',
     sourcemap: false,
+    emptyOutDir: true
   },
-  // Add this for proper routing
-  base: './',
+  define: {
+    'process.env': {}
+  }
 })
