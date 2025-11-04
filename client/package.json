@@ -1,5 +1,5 @@
 {
-  "name": "chat-client",
+  "name": "nexsy-frontend",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -10,10 +10,10 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
-    "axios": "^1.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.8.0",
+    "axios": "^1.6.0",
     "socket.io-client": "^4.7.2",
     "uuid": "^9.0.0"
   },

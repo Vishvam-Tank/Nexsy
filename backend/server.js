@@ -8,83 +8,95 @@ import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
+// Load environment variables
 dotenv.config();
+
 const app = express();
 
-// CORS configuration
+// CORS configuration for production
 app.use(cors({
   origin: [
     "http://localhost:5173", 
     "http://127.0.0.1:5173", 
     "http://localhost:3000",
-    "https://nexsy-chat-app.vercel.app", // Your Vercel domain
+    "https://nexsy-chat.vercel.app",
     "https://*.vercel.app"
   ],
-  methods: ["GET", "POST"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
 
 app.use(express.json());
 
-// MongoDB connection with better error handling
-const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/chatdb";
+// MongoDB Connection
+const MONGO_URI = process.env.MONGO_URI;
+
+if (!MONGO_URI) {
+  console.error("❌ MONGO_URI is missing in environment variables");
+  process.exit(1);
+}
 
 console.log("🔗 Connecting to MongoDB...");
 
-mongoose.connect(MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => {
-  console.log("✅ MongoDB connected successfully");
-})
-.catch((err) => {
-  console.error("❌ MongoDB connection error:", err.message);
-  console.log("💡 Tip: Make sure your IP is whitelisted in MongoDB Atlas");
-  process.exit(1);
-});
+mongoose.connect(MONGO_URI)
+  .then(() => {
+    console.log("✅ MongoDB Connected Successfully!");
+  })
+  .catch((error) => {
+    console.error("❌ MongoDB Connection Failed:", error.message);
+    console.log("💡 Tips: Check your password in .env file and IP whitelist in MongoDB Atlas");
+    process.exit(1);
+  });
 
-// Models
-const UserSchema = new mongoose.Schema(
-  {
-    username: { type: String, required: true, unique: true },
-    email: { type: String },
-    password: { type: String, required: true },
-    lastSeen: { type: Date, default: Date.now },
-    isOnline: { type: Boolean, default: false }
+// Database Models
+const UserSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  email: { type: String },
+  password: { type: String, required: true },
+  lastSeen: { type: Date, default: Date.now },
+  isOnline: { type: Boolean, default: false }
+}, { timestamps: true });
+
+const MessageSchema = new mongoose.Schema({
+  sender: { type: String, required: true },
+  receiver: { type: String, required: true },
+  text: { type: String, required: true },
+  status: { 
+    type: String, 
+    enum: ['sent', 'delivered', 'seen'],
+    default: 'sent'
   },
-  { timestamps: true }
-);
+  deliveredAt: { type: Date, default: null },
+  seenAt: { type: Date, default: null },
+  isDeleted: { type: Boolean, default: false }
+}, { timestamps: true });
 
-const MessageSchema = new mongoose.Schema(
-  {
-    sender: { type: String, required: true },
-    receiver: { type: String, required: true },
-    text: { type: String, required: true },
-    status: { 
-      type: String, 
-      enum: ['sent', 'delivered', 'seen'],
-      default: 'sent'
-    },
-    deliveredAt: { type: Date, default: null },
-    seenAt: { type: Date, default: null },
-    isDeleted: { type: Boolean, default: false },
-    deletedAt: { type: Date, default: null },
-  },
-  { timestamps: true }
-);
-
-// Use existing models or create new ones
 const User = mongoose.models.User || mongoose.model("User", UserSchema);
 const Message = mongoose.models.Message || mongoose.model("Message", MessageSchema);
 
-// Auth routes
+// ==================== API ROUTES ====================
+
+// Health Check
+app.get("/api/health", (req, res) => {
+  res.json({ 
+    status: "OK", 
+    service: "Nexsy Chat Backend",
+    database: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+    timestamp: new Date().toISOString()
+  });
+});
+
+// User Registration
 app.post("/api/register", async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, password } = req.body;
     
     if (!username || !password) {
-      return res.status(400).json({ message: "Username and password are required" });
+      return res.status(400).json({ message: "Username and password required" });
+    }
+
+    if (username.length < 3) {
+      return res.status(400).json({ message: "Username must be at least 3 characters" });
     }
 
     // Check if user exists
@@ -93,48 +105,45 @@ app.post("/api/register", async (req, res) => {
       return res.status(400).json({ message: "Username already taken" });
     }
 
-    // Hash password and create user
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Create new user
+    const hashedPassword = await bcrypt.hash(password, 12);
     const user = new User({ 
       username, 
-      email: email || `${username}@example.com`, 
       password: hashedPassword 
     });
     
     await user.save();
-    
+
     res.status(201).json({ 
       success: true,
-      message: "User registered successfully" 
+      message: "Registration successful! You can now login." 
     });
     
   } catch (error) {
     console.error("Registration error:", error);
-    res.status(500).json({ 
-      success: false,
-      message: "Internal server error" 
-    });
+    res.status(500).json({ message: "Server error during registration" });
   }
 });
 
+// User Login
 app.post("/api/login", async (req, res) => {
   try {
     const { username, password } = req.body;
     
     if (!username || !password) {
-      return res.status(400).json({ message: "Username and password are required" });
+      return res.status(400).json({ message: "Username and password required" });
     }
 
     // Find user
     const user = await User.findOne({ username });
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Invalid username or password" });
     }
 
-    // Check password
+    // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Invalid username or password" });
     }
 
     // Update user status
@@ -143,10 +152,10 @@ app.post("/api/login", async (req, res) => {
       lastSeen: new Date()
     });
 
-    // Generate token
+    // Generate JWT token
     const token = jwt.sign(
       { username: user.username }, 
-      process.env.JWT_SECRET || "fallback_secret_key", 
+      process.env.JWT_SECRET, 
       { expiresIn: "7d" }
     );
 
@@ -158,14 +167,11 @@ app.post("/api/login", async (req, res) => {
     
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({ 
-      success: false,
-      message: "Internal server error" 
-    });
+    res.status(500).json({ message: "Server error during login" });
   }
 });
 
-// Get all users
+// Get all users for chat list
 app.get("/api/users", async (req, res) => {
   try {
     const users = await User.find({}, 'username isOnline lastSeen')
@@ -178,26 +184,26 @@ app.get("/api/users", async (req, res) => {
   }
 });
 
-// Auth middleware
+// Authentication middleware
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
   
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "No token provided" });
+    return res.status(401).json({ message: "Access token required" });
   }
 
   const token = authHeader.split(" ")[1];
   
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback_secret_key");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
   } catch (error) {
-    return res.status(403).json({ message: "Invalid token" });
+    return res.status(403).json({ message: "Invalid or expired token" });
   }
 };
 
-// Get messages for current user
+// Get user's messages
 app.get("/api/messages", authMiddleware, async (req, res) => {
   try {
     const currentUser = req.user.username;
@@ -221,26 +227,17 @@ app.get("/api/messages", authMiddleware, async (req, res) => {
   }
 });
 
-// Health check endpoint
-app.get("/api/health", (req, res) => {
-  res.json({ 
-    status: "OK", 
-    message: "Server is running",
-    timestamp: new Date().toISOString()
-  });
-});
+// ==================== SOCKET.IO ====================
 
-// Create HTTP server
 const server = http.createServer(app);
 
-// Socket.io setup
 const io = new Server(server, {
   cors: {
     origin: [
       "http://localhost:5173",
-      "http://127.0.0.1:5173", 
+      "http://127.0.0.1:5173",
       "http://localhost:3000",
-      "https://nexsy-chat-app.vercel.app",
+      "https://nexsy-chat.vercel.app",
       "https://*.vercel.app"
     ],
     methods: ["GET", "POST"],
@@ -250,20 +247,21 @@ const io = new Server(server, {
   pingInterval: 25000
 });
 
-// Online users tracking
+// Track online users
 const onlineUsers = new Map(); // socketId -> username
 const userSockets = new Map(); // username -> Set(socketIds)
 
 io.on("connection", (socket) => {
-  console.log("🟢 New connection:", socket.id);
+  console.log("🟢 User connected:", socket.id);
 
+  // Register user when they join
   socket.on("registerUser", async (data) => {
     const username = data?.username;
     if (!username) return;
 
     console.log("👤 User registered:", username);
 
-    // Track user connection
+    // Track connection
     onlineUsers.set(socket.id, username);
     
     if (!userSockets.has(username)) {
@@ -271,7 +269,7 @@ io.on("connection", (socket) => {
     }
     userSockets.get(username).add(socket.id);
 
-    // Update user status in database
+    // Update database status
     try {
       await User.findOneAndUpdate(
         { username }, 
@@ -281,25 +279,26 @@ io.on("connection", (socket) => {
       console.error("Error updating user status:", error);
     }
 
-    // Broadcast updated user list
+    // Broadcast updated online list
     const onlineUsernames = Array.from(new Set(onlineUsers.values()));
     io.emit("onlineUsers", onlineUsernames);
     
-    console.log("📊 Online users:", onlineUsernames);
+    console.log("📊 Online users:", onlineUsernames.length);
   });
 
+  // Handle sending messages
   socket.on("send_message", async (data) => {
     try {
       const { sender, receiver, text } = data;
       
       if (!sender || !receiver || !text) {
-        socket.emit("error", { message: "Missing required fields" });
+        socket.emit("error", { message: "Missing message data" });
         return;
       }
 
-      console.log("📤 Message from:", sender, "to:", receiver);
+      console.log("📤 Message from", sender, "to", receiver);
 
-      // Save message to database
+      // Save to database
       const message = new Message({ sender, receiver, text });
       const savedMessage = await message.save();
 
@@ -314,12 +313,12 @@ io.on("connection", (socket) => {
 
       // Send to receiver if online
       const receiverSockets = userSockets.get(receiver);
-      if (receiverSockets) {
+      if (receiverSockets && receiverSockets.size > 0) {
         receiverSockets.forEach(sid => {
           io.to(sid).emit("receive_message", messageData);
         });
         
-        // Update message status to delivered
+        // Update status to delivered
         await Message.findByIdAndUpdate(savedMessage._id, {
           status: 'delivered',
           deliveredAt: new Date()
@@ -341,6 +340,50 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Mark messages as seen
+  socket.on("mark_messages_seen", async (data) => {
+    try {
+      const { sender, receiver } = data;
+      
+      await Message.updateMany(
+        {
+          sender: sender,
+          receiver: receiver,
+          status: { $in: ['sent', 'delivered'] }
+        },
+        {
+          status: 'seen',
+          seenAt: new Date()
+        }
+      );
+
+      // Notify sender
+      const senderSockets = userSockets.get(sender);
+      if (senderSockets) {
+        senderSockets.forEach(sid => {
+          io.to(sid).emit("messages_seen", { sender, receiver });
+        });
+      }
+
+    } catch (error) {
+      console.error("Mark messages seen error:", error);
+    }
+  });
+
+  // Handle typing indicator
+  socket.on("typing", (data) => {
+    const { sender, receiver } = data;
+    if (!sender || !receiver) return;
+
+    const receiverSockets = userSockets.get(receiver);
+    if (receiverSockets) {
+      receiverSockets.forEach(sid => {
+        io.to(sid).emit("typing", { sender });
+      });
+    }
+  });
+
+  // Handle disconnection
   socket.on("disconnect", async () => {
     const username = onlineUsers.get(socket.id);
     console.log("🔴 User disconnected:", username);
@@ -354,7 +397,7 @@ io.on("connection", (socket) => {
         if (userSocketSet.size === 0) {
           userSockets.delete(username);
           
-          // Update user as offline in database
+          // Update database status
           try {
             await User.findOneAndUpdate(
               { username }, 
@@ -366,16 +409,18 @@ io.on("connection", (socket) => {
         }
       }
 
-      // Broadcast updated user list
+      // Broadcast updated online list
       const onlineUsernames = Array.from(new Set(onlineUsers.values()));
       io.emit("onlineUsers", onlineUsernames);
     }
   });
 });
 
+// Start server
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📍 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🚀 Nexsy Backend running on port ${PORT}`);
+  console.log(`📍 Health: http://localhost:${PORT}/api/health`);
+  console.log(`🌐 Environment: ${process.env.NODE_ENV}`);
 });

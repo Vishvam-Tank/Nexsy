@@ -1,38 +1,49 @@
-// client/src/pages/Register.jsx
 import React, { useState } from "react";
 import axios from "axios";
-import "./login.css";
 import { API_URL } from "../config";
-
+import "./Auth.css";
 
 export default function Register() {
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setMessage("");
+    
+    if (password !== confirmPassword) {
+      setMessage("❌ Passwords do not match");
+      return;
+    }
+
+    if (username.length < 3) {
+      setMessage("❌ Username must be at least 3 characters");
+      return;
+    }
+
+    setLoading(true);
 
     try {
-      const res = await axios.post(`${API_URL}/login`, {
+      const response = await axios.post(`${API_URL}/register`, {
         username,
-        email,
         password,
       });
 
-      if (res.data?.message?.toLowerCase().includes("success")) {
+      if (response.data.success) {
         setMessage("✅ Registration successful! Redirecting to login...");
+        
         setTimeout(() => {
           window.location.href = "/login";
-        }, 1000);
-      } else {
-        setMessage("⚠️ Registration failed. Try another username.");
+        }, 2000);
       }
-    } catch (err) {
-      setMessage("⚠️ Registration failed. Please check details.");
-      console.error(err);
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "Registration failed. Please try again.";
+      setMessage(`❌ ${errorMessage}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,12 +51,12 @@ export default function Register() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <div className="app-brand auth-brand">
+          <div className="app-brand">
             <div className="app-logo">💬</div>
-            <span className="app-name">ChatApp</span>
+            <span className="app-name">Nexsy Chat</span>
           </div>
-          <h2 className="auth-title">Create Account</h2>
-          <p className="auth-sub">Join and start chatting instantly</p>
+          <h2>Create Account</h2>
+          <p>Join Nexsy and start chatting instantly</p>
         </div>
 
         <form onSubmit={handleRegister} className="auth-form">
@@ -54,38 +65,57 @@ export default function Register() {
               type="text"
               placeholder="Username"
               value={username}
-              required
               onChange={(e) => setUsername(e.target.value)}
-            />
-          </div>
-          <div className="input-group">
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
               required
-              onChange={(e) => setEmail(e.target.value)}
+              minLength={3}
+              disabled={loading}
             />
           </div>
+          
           <div className="input-group">
             <input
               type="password"
               placeholder="Password"
               value={password}
-              required
               onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={1}
+              disabled={loading}
             />
           </div>
-          <button type="submit" className="auth-btn">
-            Register
+
+          <div className="input-group">
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              minLength={1}
+              disabled={loading}
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            className="auth-btn"
+            disabled={loading}
+          >
+            {loading ? "Creating Account..." : "Create Account"}
           </button>
         </form>
 
-        {message && <div className="auth-msg">{message}</div>}
+        {message && (
+          <div className={`auth-message ${message.includes('✅') ? 'success' : 'error'}`}>
+            {message}
+          </div>
+        )}
 
-        <p className="auth-footer">
-          Already have an account? <a href="/login">Login</a>
-        </p>
+        <div className="auth-footer">
+          <p>
+            Already have an account? <a href="/login">Sign in</a>
+          </p>
+        </div>
       </div>
     </div>
   );

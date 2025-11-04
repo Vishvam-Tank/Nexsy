@@ -1,25 +1,23 @@
-// client/src/config.js
-
-// Development configuration
-const devConfig = {
-  API_URL: 'http://localhost:5000/api',
-  SOCKET_URL: 'http://localhost:5000'
+// Configuration for different environments
+const config = {
+  development: {
+    API_URL: 'http://localhost:5000/api',
+    SOCKET_URL: 'http://localhost:5000'
+  },
+  production: {
+    API_URL: 'https://nexsy-backend.onrender.com/api', // Will be updated after deployment
+    SOCKET_URL: 'https://nexsy-backend.onrender.com'   // Will be updated after deployment
+  }
 };
-
-// Production configuration - UPDATE THESE WITH YOUR ACTUAL RENDER URL
-const prodConfig = {
-  API_URL: 'https://nexsy.onrender.com/api', // REPLACE WITH YOUR RENDER URL
-  SOCKET_URL: 'https://nexsy.onrender.com'   // REPLACE WITH YOUR RENDER URL
-};
-
-// Check if we're in production
-const isProduction = import.meta.env.PROD;
 
 // Use environment variables if available, otherwise use config
-const config = isProduction ? prodConfig : devConfig;
+const environment = import.meta.env.PROD ? 'production' : 'development';
+const envConfig = config[environment];
 
-export const API_URL = import.meta.env.VITE_API_URL || config.API_URL;
-export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || config.SOCKET_URL;
+export const API_URL = import.meta.env.VITE_API_URL || envConfig.API_URL;
+export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || envConfig.SOCKET_URL;
 
+console.log('🚀 App Configuration:');
+console.log('Environment:', environment);
 console.log('API URL:', API_URL);
 console.log('Socket URL:', SOCKET_URL);

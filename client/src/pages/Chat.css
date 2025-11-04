@@ -27,69 +27,37 @@ body {
   overflow: hidden;
 }
 
-/* Main layout */
+/* Loading */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: var(--cream);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--tan);
+  border-top: 4px solid var(--forest);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Main Layout */
 .chat-layout {
   display: flex;
   height: 100vh;
   background: var(--cream);
   position: relative;
-}
-
-/* App Branding */
-.app-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 8px;
-}
-
-.app-logo {
-  font-size: 24px;
-  background: var(--forest);
-  color: white;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.app-name {
-  font-weight: 700;
-  color: var(--forest);
-  font-size: 18px;
-}
-
-.app-brand-large {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.app-logo-large {
-  font-size: 64px;
-  background: var(--forest);
-  color: white;
-  width: 100px;
-  height: 100px;
-  border-radius: 25px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 20px;
-}
-
-.app-brand-large h1 {
-  font-size: 32px;
-  color: var(--forest);
-  margin-bottom: 8px;
-  font-weight: 700;
-}
-
-.app-brand-large p {
-  color: var(--forest);
-  opacity: 0.8;
-  font-size: 16px;
 }
 
 /* Mobile Header */
@@ -132,7 +100,7 @@ body {
   border: 2px solid var(--gold);
 }
 
-/* LEFT SIDEBAR */
+/* Sidebar */
 .chat-sidebar {
   width: var(--sidebar-width);
   background: var(--forest);
@@ -160,7 +128,7 @@ body {
   padding: 4px;
 }
 
-/* Your profile */
+/* User Profile */
 .you-profile {
   display: flex;
   align-items: center;
@@ -289,7 +257,7 @@ body {
   color: rgba(255, 255, 255, 0.5);
 }
 
-/* Unread message badge */
+/* Unread Badge */
 .unread-badge {
   background: var(--unread-badge);
   color: white;
@@ -327,7 +295,7 @@ body {
   font-size: 14px;
 }
 
-/* Logout button */
+/* Logout Button */
 .logout-btn {
   margin: 16px;
   background: rgba(255, 255, 255, 0.1);
@@ -345,7 +313,7 @@ body {
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* MAIN CHAT AREA */
+/* Main Chat Area */
 .chat-main {
   flex: 1;
   display: flex;
@@ -353,7 +321,7 @@ body {
   background: var(--cream);
 }
 
-/* No user selected state */
+/* No User Selected */
 .no-user-selected {
   flex: 1;
   display: flex;
@@ -370,17 +338,35 @@ body {
   padding: 40px 20px;
 }
 
-.welcome-message h2 {
-  font-size: 28px;
-  margin-bottom: 12px;
-  font-weight: 300;
+.app-brand-large {
+  text-align: center;
+  margin-bottom: 40px;
 }
 
-.welcome-instruction {
-  font-size: 16px;
+.app-logo-large {
+  font-size: 64px;
+  background: var(--forest);
+  color: white;
+  width: 100px;
+  height: 100px;
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+
+.app-brand-large h1 {
+  font-size: 32px;
   color: var(--forest);
-  opacity: 0.7;
-  margin-top: 30px;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.app-brand-large p {
+  color: var(--forest);
+  opacity: 0.8;
+  font-size: 16px;
 }
 
 .welcome-illustration {
@@ -405,7 +391,14 @@ body {
   opacity: 0.5;
 }
 
-/* Chat header */
+.welcome-instruction {
+  font-size: 16px;
+  color: var(--forest);
+  opacity: 0.7;
+  margin-top: 30px;
+}
+
+/* Chat Header */
 .chat-header {
   background: var(--tan);
   padding: 16px 24px;
@@ -463,7 +456,7 @@ body {
   border-radius: 50%;
 }
 
-/* Messages container */
+/* Messages Container */
 .messages-container {
   flex: 1;
   padding: 24px;
@@ -478,7 +471,7 @@ body {
   background-size: 100px 100px;
 }
 
-/* No messages state */
+/* No Messages */
 .no-messages {
   text-align: center;
   color: var(--forest);
@@ -488,7 +481,7 @@ body {
   font-size: 16px;
 }
 
-/* Message styles */
+/* Message Styles */
 .message {
   display: flex;
   align-items: flex-start;
@@ -563,7 +556,6 @@ body {
   margin-bottom: 4px;
 }
 
-/* Message meta (time + status) */
 .message-meta {
   display: flex;
   align-items: center;
@@ -615,7 +607,7 @@ body {
   transform: scale(1.05);
 }
 
-/* Typing indicator */
+/* Typing Indicator */
 .typing-indicator {
   display: flex;
   align-items: center;
@@ -661,7 +653,7 @@ body {
   }
 }
 
-/* Message input form */
+/* Message Input */
 .message-input-form {
   display: flex;
   gap: 12px;
@@ -686,11 +678,6 @@ body {
 .message-input:focus {
   border-color: var(--gold);
   box-shadow: 0 0 0 2px rgba(177, 151, 107, 0.2);
-}
-
-.message-input:disabled {
-  background: rgba(255, 255, 255, 0.5);
-  color: rgba(0, 0, 0, 0.3);
 }
 
 .message-input::placeholder {
@@ -722,7 +709,7 @@ body {
   transform: none;
 }
 
-/* Profile overlay */
+/* Profile Overlay */
 .profile-overlay {
   position: fixed;
   inset: 0;
@@ -795,7 +782,19 @@ body {
   background: #2b4c44;
 }
 
-/* Scrollbar styling */
+/* Sidebar Overlay */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 85;
+  display: none;
+}
+
+/* Scrollbars */
 .messages-container::-webkit-scrollbar {
   width: 6px;
 }
@@ -826,7 +825,8 @@ body {
   border-radius: 2px;
 }
 
-/* RESPONSIVE DESIGN */
+/* ==================== RESPONSIVE DESIGN ==================== */
+
 @media (max-width: 768px) {
   .chat-layout {
     flex-direction: column;
@@ -857,13 +857,7 @@ body {
   }
   
   .sidebar-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 95;
+    display: block;
   }
   
   .chat-main {
@@ -965,7 +959,6 @@ body {
   }
 }
 
-/* Small phones */
 @media (max-width: 360px) {
   .mobile-header {
     padding: 10px 12px;
