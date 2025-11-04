@@ -4,7 +4,7 @@ import io from "socket.io-client";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { API_URL, SOCKET_URL } from "../config";
-import "./chat.css";
+import "../chat.css";
 
 const socket = io(SOCKET_URL, { autoConnect: false });
 
